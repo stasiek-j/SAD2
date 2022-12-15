@@ -17,7 +17,9 @@ def main(n_epochs=20,
          latent=4,
          hyper_sigma=.01,
          beta=1,
-         save_to='vae_latest'):
+         save_to='vae_latest',
+         test="data/SAD2022Z_Project1_GEX_test.h5ad",
+         train="data/SAD2022Z_Project1_GEX_train.h5ad"):
     # Set device:
     if torch.cuda.is_available():
         device = torch.device('cuda')
@@ -31,8 +33,8 @@ def main(n_epochs=20,
     torch.manual_seed(random_seed)
 
     # Load data:
-    train, test = sc.read_h5ad("data/SAD2022Z_Project1_GEX_train.h5ad"), \
-                  sc.read_h5ad("data/SAD2022Z_Project1_GEX_test.h5ad")
+    train, test = sc.read_h5ad(train), \
+                  sc.read_h5ad(test)
 
     sc.pp.log1p(train)
     sc.pp.log1p(test)
@@ -158,6 +160,8 @@ if __name__ == '__main__':
     parser.add_argument('--hyper_sigma', default=.01)
     parser.add_argument('--beta', default=1.)
     parser.add_argument('--save_to', default='vae_latest')
+    parser.add_argument('--test', default="data/SAD2022Z_Project1_GEX_test.h5ad")
+    parser.add_argument("--train", default="data/SAD2022Z_Project1_GEX_train.h5ad")
     parser.add_argument('--demo', action="store_true", default=True, help="Used to run training in default mode, "
                                                                           "takes privelage over other args.")
     args = vars(parser.parse_args())
@@ -171,7 +175,7 @@ if __name__ == '__main__':
 
     if not args["demo"]:
         args.pop('demo')
-        main(parser.parse_args())
+        main(**args)
     else:
         print("Demo mode:")
-        main(latent=64, save_to="trained_models/VAE_exp_latent64")
+        main(latent=64, save_to="trained_models/VAE_exp_latent64", test=args['test'], train=args['train']))
